@@ -6,25 +6,43 @@ id: prepare_data
 baseCommand:
   - python3
 inputs:
-  - id: projectDir
+  - id: projectDirectory
+    type: Directory?
+  - id: trainingSet
+    type: File?
+    inputBinding:
+      position: 0
+      prefix: '--training-set'
+  - id: testingSet
+    type: File?
+    inputBinding:
+      position: 0
+      prefix: '--testing-set'
+  - id: wavDirectory
     type: Directory?
     inputBinding:
       position: 0
-      prefix: '--outdir'
+      prefix: '--wav-dir'
+  - id: splitRatio
+    type: float?
+    inputBinding:
+      position: 0
+      prefix: '--ratio'
 outputs:
-  - id: trainingSet
-    type:
-      - File
-      - type: array
-        items: File
+  - id: outTrainingSet
+    type: File?
     outputBinding:
-      glob: $(inputs.projectDir.path)/cfg/enroll_list_timit.csv
+      glob: $(inputs.trainingSet.path)
+  - id: outTestingSet
+    type: File?
+    outputBinding:
+      glob: $(inputs.trainingSet.path)
 label: Prepare Data
 arguments:
   - position: 0
     prefix: ''
     separate: false
-    valueFrom: $(inputs.projectDir.path)/prepareTIMITSampleDataset.py
+    valueFrom: $(inputs.projectDirectory.path)/prepareTIMITSampleDataset.py
   - position: 0
 requirements:
   - class: ResourceRequirement

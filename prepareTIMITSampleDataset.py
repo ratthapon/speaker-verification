@@ -8,19 +8,29 @@ from pandas import DataFrame
 EXCLUDE_FILES = ["sa1.wav", "sa2.wav"]
 
 if __name__ == "__main__":
+    #%% setup argument parser for CLI usage
     parser = argparse.ArgumentParser(description = "Prepare dataset by spliting TIMIT-Sample dataset for training and testing.")
-    parser.add_argument("--indir", metavar = 'indir', type = str, 
-                        help = "input directory")
-    parser.add_argument("--outdir", metavar = 'outdir', type = str, 
-                        help = "output directory")
+    parser.add_argument("--training-set", dest = "trainingSet", 
+                        metavar = 'TRAINING_SET', type = str, 
+                        help = "an output contains meta data for training set in .csv format")
+    parser.add_argument("--testing-set", dest = "testingSet", 
+                        metavar = 'TESTING_SET', type = str, 
+                        help = "an output contains meta data for testing set in .csv format")
+    parser.add_argument("--wav-dir", dest = "wavDir", 
+                        metavar = 'SPEAKER_DIRECTORY', type = str, 
+                        help = "a directory contains speaker directories which each of them contains audio files in .wav format")
+    parser.add_argument("--ratio", dest = "ratio", 
+                        metavar = 'RATIO', type = float, default = 0.5,
+                        help = "a train/test split ratio")
     args = parser.parse_args()
     
+    # Initialize dataset
     trainIDList = []
     trainFileList = []
     testIDlist = []
     testFileList = []
 
-    speakerDirectories = glob("/home/ratthapon/TIMIT/timit/train/*/")
+    speakerDirectories = glob(args.wavDir + "/*/")
 
     for speakerDirectory in speakerDirectories:
         speakerID = Path(speakerDirectory).name
@@ -55,14 +65,10 @@ if __name__ == "__main__":
         "speaker": testIDlist,
         "filename": testFileList
     })
-    
-    import os
-    
-    print(os.getcwd())
 
-    print("Exporting enroll list to CSV:", "cfg/enroll_list_timit.csv")
-    trainingSet.to_csv(args.outdir + "/cfg/enroll_list_timit.csv", columns = ["filename", "speaker"], index = False)
+    print("Exporting enroll list to CSV:", args.trainingSet)
+    trainingSet.to_csv(args.trainingSet, columns = ["filename", "speaker"], index = False)
 
-    print("Exporting test list to CSV:", "cfg/test_list_timit.csv")
-    testingSet.to_csv(args.outdir + "/cfg/test_list_timit.csv", columns = ["filename", "speaker"], index = False)
+    print("Exporting test list to CSV:", args.testingSet)
+    testingSet.to_csv(args.testingSet, columns = ["filename", "speaker"], index = False)
         
